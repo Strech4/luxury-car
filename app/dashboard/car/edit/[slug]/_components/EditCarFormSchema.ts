@@ -12,8 +12,8 @@ export const EditCarFormSchema = z.object({
     brandId: z.string(),
     isNew: z.boolean(),
     available: z.boolean(),
-    /* image: z.string(),
-    imageKey: z.string(), */
+    image: z.string().optional(),
+    imageKey: z.string().optional(),
 })
 
 export type EditCarFormSchemaType = z.infer<typeof EditCarFormSchema>;

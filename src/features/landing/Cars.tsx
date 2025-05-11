@@ -14,9 +14,12 @@ export const Cars = ({ cars }: { cars: CarType[] }) => {
         return acc;
     }, {} as Record<string, CarType[]>);
 
+    // Sort brands alphabetically
+    const sortedBrands = Object.keys(groupedCars).sort();
+
     return (
         <div className='mt-10 flex flex-col gap-10'>
-            {Object.entries(groupedCars).map(([brand, cars]) => (
+            {sortedBrands.map((brand) => (
                 <div
                     key={brand}
                     className='flex flex-col gap-5'
@@ -25,7 +28,7 @@ export const Cars = ({ cars }: { cars: CarType[] }) => {
                         {brand}
                     </h2>
                     <div className='flex flex-wrap gap-5'>
-                        {cars.map((car, idx) => (
+                        {groupedCars[brand].map((car, idx) => (
                             <CarDialog
                                 car={car}
                                 key={idx}
@@ -33,13 +36,11 @@ export const Cars = ({ cars }: { cars: CarType[] }) => {
                                 <div
                                     className='relative max-w-fit flex flex-col hover:scale-105 transition-transform duration-150 cursor-pointer'
                                 >
-
                                     {car.isNew ? (
                                         <div className='absolute right-0 px-2 py-1 bg-gray-100 backdrop-blur-sm rounded-tr-md rounded-bl-md'>
                                             <p className='text-xs'>Nouveau</p>
                                         </div>
                                     ) : null}
-
                                     <div className=''>
                                         <Image
                                             src={car.imageUrl || "/images/placeholder.png"}
@@ -56,8 +57,6 @@ export const Cars = ({ cars }: { cars: CarType[] }) => {
                                 </div>
                             </CarDialog>
                         ))}
-
-
                     </div>
                 </div>
             ))}

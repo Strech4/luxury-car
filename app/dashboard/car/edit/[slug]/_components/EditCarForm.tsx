@@ -1,7 +1,7 @@
 "use client"
 import { useZodForm } from '@/components/ui/form';
 import { useRouter } from 'next/navigation';
-import React from 'react'
+import React, { useState } from 'react'
 import { EditCarFormSchema, EditCarFormSchemaType } from './EditCarFormSchema';
 import { Car } from '@/generated/prisma';
 import { useMutation } from '@tanstack/react-query';
@@ -11,13 +11,19 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { LoadingButton } from '@/features/form/SubmitButton';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { CarType } from '@/lib/types/landing';
+import Image from 'next/image';
+import { cn } from '@/lib/utils';
+import { DeleteImageAction } from './DeleteImage.action';
+import { useUploadThing } from '@/lib/uploadthing/uploadthing';
 
 export const EditCarForm = ({ car, brands }: { car: Car, brands: { id: string; name: string; }[] }) => {
+
+    const [imageData, setImageData] = useState<{ url: string; key: string } | null>(null);
 
     const router = useRouter();
 
@@ -58,6 +64,20 @@ export const EditCarForm = ({ car, brands }: { car: Car, brands: { id: string; n
             toast.error(error.message)
         }
     })
+
+    const { startUpload, isUploading } = useUploadThing("imageUploader", {
+        onClientUploadComplete: (res) => {
+            setImageData({
+                url: res[0].ufsUrl,
+                key: res[0].key
+            });
+            form.setValue("image", res[0].ufsUrl);
+            form.setValue("imageKey", res[0].key);
+        },
+        onUploadError: (error) => {
+            toast.error(`Erreur lors de l'upload de l'image ${error.message}`);
+        },
+    });
 
     return (
         <Form
@@ -257,8 +277,74 @@ export const EditCarForm = ({ car, brands }: { car: Car, brands: { id: string; n
 
                 <div className="col-span-12 md:col-span-6 lg:col-span-4">
                     <Card>
+                        <CardHeader>
+                            <CardTitle>Modifier l'image</CardTitle>
+                            <CardDescription>
+                                Attention, une seule image par véhicule. Supprimez l'ancienne image pour modifier.
+                            </CardDescription>
+                        </CardHeader>
                         <CardContent className='flex flex-col gap-3'>
-                            Image
+                            {car.imageUrl ? (
+                                <div className='w-fit relative'>
+                                    <Image
+                                        src={car.imageUrl}
+                                        alt={`Preview ${car.name}`}
+                                        className='object-contain object-center size-32 rounded-md select-none border'
+                                        width={1980}
+                                        height={1080}
+                                    />
+                                    <div
+                                        className='absolute top-0 text-center text-xs p-2 border rounded-tr-md rounded-tl-md bg-white w-full  cursor-pointer'
+                                        onClick={async () => {
+                                            const result = await DeleteImageAction(car.id, car.imageKey)
+
+                                            if (!result.success) {
+                                                toast.error(result.error)
+                                                return
+                                            }
+
+                                            toast.success("Image supprimée avec succès")
+                                            router.refresh()
+                                        }}
+                                    >
+                                        Supprimer l'image
+                                    </div>
+                                </div>
+                            ) : (
+                                <div>
+                                    <FormField
+                                        control={form.control}
+                                        name="image"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Image du véhicule</FormLabel>
+                                                <FormControl>
+                                                    <div className="flex items-center gap-4">
+                                                        <Input
+                                                            type="file"
+                                                            accept="image/*"
+                                                            onChange={async (e) => {
+                                                                const file = e.target.files?.[0];
+                                                                if (!file) return;
+                                                                await startUpload([file]);
+                                                            }}
+                                                        />
+                                                        {isUploading && <span>Upload en cours...</span>}
+                                                        {imageData?.url && (
+                                                            <img
+                                                                src={imageData.url}
+                                                                alt="Preview"
+                                                                className="w-20 h-20 object-cover rounded"
+                                                            />
+                                                        )}
+                                                    </div>
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+                            )}
                         </CardContent>
                     </Card>
                 </div>
