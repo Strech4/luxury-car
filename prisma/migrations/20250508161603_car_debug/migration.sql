@@ -1,0 +1,23 @@
+-- AlterTable
+ALTER TABLE "Car" ADD COLUMN     "imageKey" TEXT,
+ADD COLUMN     "imageUrl" TEXT,
+ALTER COLUMN "maxSpeed" SET DATA TYPE TEXT,
+ALTER COLUMN "seats" SET DATA TYPE TEXT,
+ALTER COLUMN "safe" SET DATA TYPE TEXT,
+ALTER COLUMN "EngineTorque" SET DATA TYPE TEXT,
+ALTER COLUMN "powerFul" SET DATA TYPE TEXT;
+
+-- CreateTable
+CREATE TABLE "CarImage" (
+    "id" TEXT NOT NULL,
+    "carId" TEXT NOT NULL,
+    "url" TEXT NOT NULL,
+    "fileKey" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "CarImage_pkey" PRIMARY KEY ("id")
+);
+
+-- AddForeignKey
+ALTER TABLE "CarImage" ADD CONSTRAINT "CarImage_carId_fkey" FOREIGN KEY ("carId") REFERENCES "Car"("id") ON DELETE CASCADE ON UPDATE CASCADE;
