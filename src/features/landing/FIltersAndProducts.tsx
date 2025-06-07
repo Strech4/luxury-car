@@ -39,7 +39,7 @@ export const FIltersAndProducts = ({ cars }: { cars: CarType[] }) => {
                 </div>
                 <p className='text-center text-muted-foreground text-xs mt-2'>
                     Découvrez notre {" "}
-                    <Link target='_blank' href="https://www.toutes-les-couleurs.com/code-couleur-rvb.php" className='underline'>palette de couleurs</Link>
+                    <Link target='_blank' href="https://encycolorpedia.fr/paints" className='underline'>palette de couleurs</Link>
                 </p>
             </div>
             <div className=''>
