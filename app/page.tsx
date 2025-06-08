@@ -3,12 +3,12 @@ import { Loader } from "@/components/ui/loader";
 import { Skeleton } from "@/components/ui/skeleton";
 import { FIltersAndProducts } from "@/features/landing/FIltersAndProducts";
 import { Hero } from "@/features/landing/Hero";
-import { GetCarsActionCached } from "@/lib/server-action/get-cars.action";
+import { GetCarAction } from "@/lib/server-action/get-cars.action";
 import { Suspense } from "react";
 
 export default async function Home() {
 
-    const cars = await GetCarsActionCached();
+    const cars = await GetCarAction();
 
     if (!cars.success || !cars.data) {
         return <main className="p-5">
